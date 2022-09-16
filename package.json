@@ -1,0 +1,12 @@
+{
+  "name": "useless-tool",
+  "version": "0.0.1",
+  "description": "none",
+  "main": "index.js",
+  "repository": "https://github.com/austin4idps/Useless-Tool.git",
+  "author": "austin4idps <austin@4idps.com>",
+  "license": "WTFPL",
+  "dependencies": {
+    "fs": "^0.0.1-security"
+  }
+}
