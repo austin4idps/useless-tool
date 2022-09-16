@@ -22,11 +22,6 @@ yarn <tool-short-hand>
 ## Tool List
 - [SQL2Object (s2o)](./src/Sql2Object/)
 
---- 
 
-### SQL2Object
-- usage  
-> Create js object syntax by sql string  
-> Replace the string inside `sql.txt`  
 
  
