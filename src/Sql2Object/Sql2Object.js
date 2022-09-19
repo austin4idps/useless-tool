@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { off } = require('process');
 
 function sqlToObject(sqlString) {
   const regExp = /\(([^)]+)\)/g;
@@ -18,8 +19,13 @@ function sqlToObject(sqlString) {
     let valueArray = value.split(',');
 
     let str = `const obj${count} = { \n`;
-    columnNameArray.forEach((v, index) => {
-      str += `${v} : ${valueArray[index]}, \n`;
+    columnNameArray.forEach((key, index) => {
+      let value = valueArray[index];
+      // null handle
+      if (value.indexOf('NULL') > 0) {
+        value = `'NULL'`;
+      }
+      str += `${key} : ${value}, \n`;
     });
     str += `} \n`;
     console.log(str);
