@@ -1,5 +1,15 @@
 const fs = require('fs');
-const { off } = require('process');
+
+// recursion for concentrate
+// return object { value : string , skip: number}
+function concentrateArray(value, array, index, skip) {
+  skip += 1;
+  value += `,${array[index + 1]}`;
+  if (value.indexOf(']') > 0) {
+    return { skip, value };
+  }
+  return concentrateArray(value, array, index + 1, skip);
+}
 
 function sqlToObject(sqlString) {
   const regExp = /\(([^)]+)\)/g;
@@ -17,11 +27,18 @@ function sqlToObject(sqlString) {
     let value = matches[i + 1];
     let columnNameArray = columnName.split(',');
     let valueArray = value.split(',');
+    let skip = 0;
 
     let str = `const obj${count} = { \n`;
+    // get columnName and value
     columnNameArray.forEach((key, index) => {
-      let value = valueArray[index];
+      let value = valueArray[index + skip];
       // null handle
+      if (value.indexOf('[') > 0) {
+        concentrateObject = concentrateArray(value, valueArray, index, skip);
+        value = concentrateObject.value;
+        skip = concentrateObject.skip;
+      }
       if (value.indexOf('NULL') > 0) {
         value = `'NULL'`;
       }
