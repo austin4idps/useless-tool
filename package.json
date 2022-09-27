@@ -7,7 +7,7 @@
   "author": "austin4idps <austin@4idps.com>",
   "license": "WTFPL",
   "scripts": {
-    "s2o": "node ./src/Sql2Object/Sql2Object.js"
+    "s2o": "node ./src/Sql2Object/index.js"
   },
   "dependencies": {
     "fs": "^0.0.1-security"
