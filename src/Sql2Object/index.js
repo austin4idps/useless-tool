@@ -1,19 +1,5 @@
 const fs = require('fs')
 
-// recursion for concentrate
-// return object { value : string , skip: number}
-function concentrateArray(value, array, index, skip) {
-  skip += 1
-  value += `,${array[index + 1]}`
-  console.log(skip)
-  console.log(value)
-  if (value.indexOf(']') > 0) {
-    return { skip, value }
-  } else {
-    return concentrateArray(value, array, index + 1, skip)
-  }
-}
-
 function sqlToObject(sqlString) {
   const regExp = /\(([^)]+)\)/g
   const matches = [...sqlString.match(regExp)]
@@ -22,6 +8,10 @@ function sqlToObject(sqlString) {
   for (let [index, value] of matches.entries()) {
     value = value.replace(')', '')
     value = value.replace('(', '')
+    if (index % 2 == 0) {
+      // get rid off the ` of the key
+      value = value.replaceAll('`', '')
+    }
     matches[index] = value
   }
 
@@ -34,15 +24,24 @@ function sqlToObject(sqlString) {
     let str = `const obj${count} = { \n`
     // get columnName and value
     columnNameArray.forEach((key, index) => {
+      // rpelace stupid `
+
       index = index + skip
       let value = valueArray[index]
 
-      // null handle
+      // iif value is array
       if (value.indexOf('[') > 0) {
-        concentrateObject = concentrateArray(value, valueArray, index, skip)
+        ;[concentrateObject] = concentrateWhenValueIsArray(
+          value,
+          valueArray,
+          index,
+          skip,
+        )
         value = concentrateObject.value
         skip = concentrateObject.skip
       }
+
+      // null handle
       if (value.indexOf('NULL') > 0) {
         value = `'NULL'`
       }
@@ -56,5 +55,27 @@ function sqlToObject(sqlString) {
   console.log(`return [${returnVar.join(',')}];`)
 }
 
-let stringHolder = fs.readFileSync('./src/Sql2Object/sql.txt').toString()
-sqlToObject(stringHolder)
+/*
+ * when value equal array need to concentrate back
+ * since the value already split by comma
+ * return object { value : string , skip: number}
+ */
+
+function concentrateWhenValueIsArray(value, array, index, skip) {
+  skip += 1
+  value += `,${array[index + 1]}`
+
+  if (value.indexOf(']') > 0) {
+    return { skip, value }
+  } else {
+    // go find next value of arry
+    return concentrateWhenValueIsArray(value, array, index + 1, skip)
+  }
+}
+
+function main() {
+  let stringHolder = fs.readFileSync('./src/Sql2Object/sql.txt').toString()
+  sqlToObject(stringHolder)
+}
+
+main()
